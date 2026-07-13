@@ -65,6 +65,17 @@ export function label(a) {
   return `${a.language}/${a.framework}/${a.packageManager}/${a.codingAgent}/${a.teamMode}/${a.ciProvider}`;
 }
 
+/** Python distribution/import name (snake_case) — mirrors lib/templates.js pyPkg. */
+function pyPkg(name) {
+  return (
+    String(name || 'app')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .replace(/-/g, '_') || 'app'
+  );
+}
+
 /**
  * The spec: the exact sorted filepath set generateAll must emit for an input.
  * Mirrors the per-generator rules in lib/templates.js:
@@ -87,17 +98,26 @@ export function expectedFiles(answers) {
   ]);
 
   const langFiles = {
-    typescript: ['package.json', 'biome.json', '.husky/pre-commit', 'tests/index.test.ts'],
+    typescript: ['package.json', 'biome.json', 'tsconfig.json', '.husky/pre-commit', 'tests/index.test.ts'],
     python: ['pyproject.toml', '.husky/pre-commit', 'tests/test_main.py'],
-    go: ['go.mod', '.golangci.yml', '.githooks/pre-commit', 'internal/app_test.go'],
+    go: ['go.mod', '.golangci.yml', '.githooks/pre-commit', 'internal/app.go', 'internal/app_test.go'],
     java: [
       'checkstyle.xml',
       '.githooks/pre-commit',
+      'src/main/java/com/example/App.java',
       'src/test/java/com/example/AppTest.java',
     ],
-    rust: ['Cargo.toml', '.githooks/pre-commit', 'tests/integration_test.rs'],
+    rust: ['Cargo.toml', '.githooks/pre-commit', 'tests/integration_test.rs', 'src/main.rs'],
   };
   for (const f of langFiles[language] || []) files.add(f);
+
+  // Source entries whose path depends on framework or project name (issue #5).
+  if (language === 'typescript' && (framework === 'express' || framework === 'none')) {
+    files.add('src/index.ts');
+  }
+  if (language === 'python') {
+    files.add('src/' + pyPkg(answers.projectName) + '/__init__.py');
+  }
 
   // Java project config depends on framework: Quarkus → Gradle, else Maven.
   if (language === 'java') {
