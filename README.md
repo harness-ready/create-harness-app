@@ -1,9 +1,9 @@
-# create-harness-app
+# @harness-ready/create-app
 
 > Generate a **harness-engineering-ready** project for AI coding agents (Claude Code, Cursor, Codex, Copilot).
 
 ```sh
-npx create-harness-app my-project
+npx @harness-ready/create-app my-project
 ```
 
 ## What it does
@@ -14,10 +14,10 @@ This tool scaffolds a new project that comes pre-configured for optimal AI-assis
 
 ```sh
 # Interactive mode
-npx create-harness-app my-project
+npx @harness-ready/create-app my-project
 
 # Skip prompts (uses TypeScript + Express defaults)
-npx create-harness-app my-project --yes
+npx @harness-ready/create-app my-project --yes
 ```
 
 You'll be asked:
@@ -72,7 +72,7 @@ This tool automates the initial setup so every new project starts harness-ready.
 ## Local development
 
 ```sh
-git clone <repo-url> create-harness-app
+git clone https://github.com/harness-ready/create-harness-app.git
 cd create-harness-app
 node bin/cli.js my-test-project --yes
 ```

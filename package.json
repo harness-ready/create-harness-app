@@ -1,5 +1,5 @@
 {
-  "name": "create-harness-app",
+  "name": "@harness-ready/create-app",
   "version": "1.0.0",
   "description": "Generate a harness-engineering-ready project for AI coding agents (Claude Code, Cursor, Codex, Copilot)",
   "type": "module",
@@ -9,6 +9,11 @@
   "exports": {
     ".": "./lib/cli.js"
   },
+  "files": [
+    "bin/",
+    "lib/",
+    "README.md"
+  ],
   "engines": {
     "node": ">=18.0.0"
   },
@@ -21,11 +26,22 @@
     "copilot",
     "agents-md",
     "project-scaffold",
-    "claude-md"
+    "claude-md",
+    "scaffold",
+    "generator",
+    "boilerplate"
   ],
   "license": "MIT",
+  "author": "harness-ready",
   "repository": {
     "type": "git",
-    "url": "https://github.com/user/create-harness-app"
+    "url": "git+https://github.com/harness-ready/create-harness-app.git"
+  },
+  "bugs": {
+    "url": "https://github.com/harness-ready/create-harness-app/issues"
+  },
+  "homepage": "https://github.com/harness-ready/create-harness-app#readme",
+  "publishConfig": {
+    "access": "public"
   }
 }
