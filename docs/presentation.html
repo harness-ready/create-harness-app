@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Harness Engineering — @harness-ready/create-app</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0D1117;
+  --bg-panel: #161B22;
+  --bg-elevated: #21262D;
+  --border: #30363D;
+  --amber: #F0A030;
+  --amber-dim: #B87817;
+  --text: #E6EDF3;
+  --text-dim: #8B949E;
+  --text-muted: #6E7681;
+  --teal: #39C5CF;
+  --display: 'Space Grotesk', sans-serif;
+  --body: 'IBM Plex Sans', sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html {
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+  overflow-y: scroll;
+  height: 100vh;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--body);
+  font-weight: 400;
+  line-height: 1.6;
+  overflow: hidden;
+}
+
+/* ── Slide system ─────────────────────────────── */
+.deck {
+  height: 100vh;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+}
+.deck::-webkit-scrollbar { width: 0; }
+
+.slide {
+  min-height: 100vh;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 4rem 6rem;
+  position: relative;
+  opacity: 0.35;
+  transition: opacity 0.6s ease;
+}
+.slide.active { opacity: 1; }
+
+/* ── Progress bar ─────────────────────────────── */
+.progress {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: var(--amber);
+  z-index: 100;
+  transition: width 0.4s ease;
+  box-shadow: 0 0 12px rgba(240, 160, 48, 0.5);
+}
+
+/* ── Slide counter ────────────────────────────── */
+.counter {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 2rem;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  z-index: 100;
+  letter-spacing: 0.05em;
+}
+.counter .current { color: var(--amber); }
+
+/* ── Nav hint ─────────────────────────────────── */
+.nav-hint {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 2rem;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  z-index: 100;
+  opacity: 0.6;
+}
+
+/* ── Typography ───────────────────────────────── */
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--amber);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin-bottom: 1.5rem;
+}
+
+h1 {
+  font-family: var(--display);
+  font-size: clamp(2.5rem, 6vw, 5rem);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  margin-bottom: 1.5rem;
+}
+
+h2 {
+  font-family: var(--display);
+  font-size: clamp(2rem, 4.5vw, 3.5rem);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: 2rem;
+}
+
+h3 {
+  font-family: var(--display);
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+p { font-size: 1.15rem; color: var(--text-dim); max-width: 60ch; }
+p strong { color: var(--text); font-weight: 500; }
+
+.accent { color: var(--amber); }
+.mono { font-family: var(--mono); }
+
+/* ── Equation (signature element) ─────────────── */
+.equation {
+  font-family: var(--display);
+  font-size: clamp(1.5rem, 3.5vw, 2.8rem);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  margin: 1rem 0;
+}
+.equation .op { color: var(--text-muted); font-weight: 400; }
+.equation .model { color: var(--text-dim); }
+.equation .harness {
+  color: var(--amber);
+  position: relative;
+}
+.equation .harness::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--amber);
+  opacity: 0.4;
+}
+.equation .result {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* ── Terminal command block ───────────────────── */
+.cmd-block {
+  font-family: var(--mono);
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.25rem 1.75rem;
+  font-size: 1.05rem;
+  color: var(--text);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.cmd-block .prompt { color: var(--amber); font-weight: 500; }
+.cmd-block .cursor {
+  display: inline-block;
+  width: 8px;
+  height: 1.1em;
+  background: var(--amber);
+  animation: blink 1.2s steps(2) infinite;
+  vertical-align: text-bottom;
+  margin-left: 2px;
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+/* ── Stat callout ─────────────────────────────── */
+.stat-row {
+  display: flex;
+  gap: 4rem;
+  margin: 2.5rem 0;
+  flex-wrap: wrap;
+}
+.stat {
+  display: flex;
+  flex-direction: column;
+}
+.stat .num {
+  font-family: var(--display);
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: var(--amber);
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+.stat .label {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: 0.5rem;
+}
+
+/* ── Layer diagram ────────────────────────────── */
+.layers {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  max-width: 560px;
+  margin: 2rem 0;
+  align-self: flex-start;
+  width: 100%;
+}
+.layer {
+  padding: 1.5rem 2rem;
+  border: 1px solid var(--border);
+  border-bottom: none;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  transition: all 0.3s ease;
+}
+.layer:last-child { border-bottom: 1px solid var(--border); }
+.layer:first-child { border-radius: 10px 10px 0 0; }
+.layer:last-child { border-radius: 0 0 10px 10px; }
+.layer:hover { border-color: var(--amber-dim); background: var(--bg-elevated); }
+.layer .tag {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.3rem 0.7rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  flex: 0 0 6.5rem;
+  text-align: center;
+}
+.layer.l1 .tag { background: rgba(240,160,48,0.12); color: var(--amber); border: 1px solid rgba(240,160,48,0.25); }
+.layer.l2 .tag { background: rgba(57,197,207,0.1); color: var(--teal); border: 1px solid rgba(57,197,207,0.2); }
+.layer.l3 .tag { background: rgba(230,237,243,0.06); color: var(--text-dim); border: 1px solid var(--border); }
+.layer .desc { font-size: 0.95rem; color: var(--text-dim); }
+.layer .desc strong { color: var(--text); }
+
+/* ── Two-column (guides vs sensors) ───────────── */
+.dual-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin: 1.5rem 0;
+  max-width: 860px;
+}
+.col-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+.col-card .icon {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin-bottom: 0.3rem;
+}
+.col-card.guides { border-top: 3px solid var(--teal); }
+.col-card.sensors { border-top: 3px solid var(--amber); }
+.col-card h3 { font-size: 1.15rem; margin-bottom: 0.6rem; }
+.col-card ul { list-style: none; }
+.col-card li {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  padding: 0.28rem 0;
+  border-bottom: 1px solid rgba(48,54,61,0.5);
+}
+.col-card li:last-child { border-bottom: none; }
+.col-card li::before {
+  content: '→ ';
+  opacity: 0.4;
+}
+
+/* ── File tree ────────────────────────────────── */
+.filetree {
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  line-height: 1.8;
+  color: var(--text-dim);
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.5rem 2rem;
+  max-width: 580px;
+}
+.filetree .dir { color: var(--text); font-weight: 500; }
+.filetree .harness-file { color: var(--amber); }
+.filetree .comment { color: var(--text-muted); font-size: 0.8rem; }
+
+/* ── Stack grid ───────────────────────────────── */
+.stack-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1.5rem;
+  margin: 2.5rem 0;
+}
+.stack-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.75rem 1.25rem;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+.stack-card:hover {
+  border-color: var(--amber-dim);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+.stack-card .lang {
+  font-family: var(--display);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 0.75rem;
+}
+.stack-card .tools {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+.stack-card .tools span { display: block; }
+
+/* ── CTA links ────────────────────────────────── */
+.cta-row {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+}
+.cta {
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  text-decoration: none;
+  padding: 0.6rem 1.4rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  transition: all 0.25s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.cta:hover {
+  border-color: var(--amber);
+  color: var(--amber);
+}
+
+/* ── Big npx command ──────────────────────────── */
+.big-cmd {
+  font-family: var(--mono);
+  font-size: clamp(1.1rem, 2.2vw, 1.6rem);
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 2rem 2.5rem;
+  display: inline-block;
+  margin: 1.5rem 0;
+  position: relative;
+  overflow: hidden;
+}
+.big-cmd::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--amber), transparent);
+}
+.big-cmd .prompt { color: var(--amber); }
+.big-cmd .pkg { color: var(--text); font-weight: 500; }
+
+/* ── Comparison row ───────────────────────────── */
+.compare {
+  display: flex;
+  gap: 3rem;
+  margin: 2rem 0;
+  align-items: center;
+}
+.compare .vs {
+  font-family: var(--display);
+  font-size: 1.5rem;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+.compare .side {
+  flex: 1;
+  max-width: 380px;
+}
+.compare .side .label {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.5rem;
+}
+.compare .side.traditional {
+  opacity: 0.5;
+}
+.compare .side.traditional .items,
+.compare .side.ready .items {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  line-height: 1.8;
+}
+.compare .side.traditional .items { color: var(--text-muted); text-decoration: line-through; text-decoration-color: var(--text-muted); }
+.compare .side.ready .items { color: var(--text); }
+.compare .side.ready .items .accent { color: var(--amber); }
+
+/* ── Arrow indicator ──────────────────────────── */
+.arrow-down {
+  position: absolute;
+  bottom: 3rem;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--text-muted);
+  font-size: 1.5rem;
+  animation: bounce 2s ease infinite;
+  opacity: 0.4;
+}
+@keyframes bounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(8px); }
+}
+
+/* ── Source citation ──────────────────────────── */
+.cite {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 1rem;
+  opacity: 0.6;
+}
+
+/* ── Responsive ───────────────────────────────── */
+@media (max-width: 900px) {
+  .slide { padding: 3rem 2rem; }
+  .stack-grid { grid-template-columns: repeat(2, 1fr); }
+  .dual-col { grid-template-columns: 1fr; }
+  .compare { flex-direction: column; }
+  .compare .vs { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="deck" id="deck">
+
+<!-- ── Slide 1: Hero ─────────────────────────────── -->
+<section class="slide" data-slide="1">
+  <div class="eyebrow">@harness-ready/create-app</div>
+  <h1>Harness<br>Engineering<span class="accent">.</span></h1>
+  <p style="font-size: 1.3rem; max-width: 50ch; margin-bottom: 2rem;">
+    The wrapper around your AI coding agent matters
+    <strong>as much as the model itself</strong>.
+  </p>
+  <div class="equation">
+    <span class="model">Model</span>
+    <span class="op">+</span>
+    <span class="harness">Harness</span>
+    <span class="op">=</span>
+    <span class="result">Agent</span>
+  </div>
+  <div style="margin-top: 3rem;">
+    <div class="cmd-block">
+      <span class="prompt">$</span>
+      <span>npx @harness-ready/create-app my-project</span>
+      <span class="cursor"></span>
+    </div>
+  </div>
+  <div class="arrow-down">↓</div>
+</section>
+
+<!-- ── Slide 2: The Insight ──────────────────────── -->
+<section class="slide" data-slide="2">
+  <div class="eyebrow">The Insight</div>
+  <h2>Same model.<br>Dramatically different results.</h2>
+  <p>
+    When Princeton researchers redesigned the <strong>agent-computer interface</strong> —
+    the tools and observations the agent works with — using the <em>same</em> GPT-4 model,
+    performance roughly tripled.
+  </p>
+  <div class="stat-row">
+    <div class="stat">
+      <div class="num">3.8%</div>
+      <div class="label">Before harness redesign</div>
+    </div>
+    <div class="stat">
+      <div class="num">12.5%</div>
+      <div class="label">After — same model</div>
+    </div>
+    <div class="stat">
+      <div class="num">3.3×</div>
+      <div class="label">Improvement, zero model change</div>
+    </div>
+  </div>
+  <p>
+    The model didn't change. The <strong class="accent">harness</strong> did.
+    For agentic tasks, the harness is a co-equal determinant of capability.
+  </p>
+  <div class="cite">Source: Yang et al., "SWE-agent: Agent-Computer Interfaces Enable Automated Software Engineering," NeurIPS 2024</div>
+</section>
+
+<!-- ── Slide 3: What is a Harness ────────────────── -->
+<section class="slide" data-slide="3">
+  <div class="eyebrow">Definition</div>
+  <h2>What exactly is a harness?</h2>
+  <p style="margin-bottom: 1rem;">A coding agent is built in three layers. You control the outermost one.</p>
+  <div class="layers">
+    <div class="layer l1">
+      <span class="tag">Your layer</span>
+      <div class="desc"><strong>User Harness</strong> — AGENTS.md, lint configs, git hooks, CI pipeline, architecture docs. <span class="accent">What you build.</span></div>
+    </div>
+    <div class="layer l2">
+      <span class="tag">Vendor</span>
+      <div class="desc"><strong>Builder Harness</strong> — system prompt, tool-use loop, context management. Built by Anthropic, Cursor, OpenAI.</div>
+    </div>
+    <div class="layer l3">
+      <span class="tag">Lab</span>
+      <div class="desc"><strong>Model</strong> — the LLM itself. GPT-4, Claude, Gemini. You can't touch this.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Slide 4: Guides & Sensors ─────────────────── -->
+<section class="slide" data-slide="4" style="padding-top: 3rem; padding-bottom: 3rem;">
+  <div class="eyebrow">The Framework — Martin Fowler / Birgitta Böckeler</div>
+  <h2 style="font-size: clamp(1.6rem, 3.5vw, 2.8rem); margin-bottom: 1rem;">Guides & Sensors.<br>You need both.</h2>
+  <p style="margin-bottom: 0.5rem; font-size: 1.05rem;">
+    Guides tell the agent what to do <em>before</em> it acts.
+    Sensors catch problems <em>after</em> it acts and let it self-correct.
+  </p>
+  <div class="dual-col">
+    <div class="col-card guides">
+      <div class="icon">FEED-FORWARD</div>
+      <h3 style="color: var(--teal);">Guides</h3>
+      <ul>
+        <li>AGENTS.md</li>
+        <li>CLAUDE.md</li>
+        <li>.cursor/rules/</li>
+        <li>architecture.md</li>
+        <li>coding conventions</li>
+        <li>bootstrap instructions</li>
+      </ul>
+    </div>
+    <div class="col-card sensors">
+      <div class="icon">FEEDBACK</div>
+      <h3 style="color: var(--amber);">Sensors</h3>
+      <ul>
+        <li>pre-commit hooks</li>
+        <li>linter (Biome / Ruff / golangci-lint)</li>
+        <li>type checker</li>
+        <li>test suite</li>
+        <li>CI pipeline</li>
+        <li>code review</li>
+      </ul>
+    </div>
+  </div>
+  <p style="font-size: 0.9rem; color: var(--text-muted);">
+    Guides without sensors → the agent repeats the same mistakes.<br>
+    Sensors without guides → the agent doesn't know what "right" is.
+  </p>
+</section>
+
+<!-- ── Slide 5: The Gap ──────────────────────────── -->
+<section class="slide" data-slide="5">
+  <div class="eyebrow">The Problem</div>
+  <h2>Every language has a project generator.<br>None of them know about harness engineering.</h2>
+  <div class="compare">
+    <div class="side traditional">
+      <div class="label">create-next-app / cookiecutter / Spring Initializr</div>
+      <div class="items">
+        package.json<br>
+        tsconfig.json<br>
+        .eslintrc<br>
+        README.md<br>
+        <span style="opacity:0.5;">┈┈ no AGENTS.md ┈┈</span><br>
+        <span style="opacity:0.5;">┈┈ no harness config ┈┈</span>
+      </div>
+    </div>
+    <div class="vs">→</div>
+    <div class="side ready">
+      <div class="label" style="color: var(--amber);">@harness-ready/create-app</div>
+      <div class="items">
+        package.json<br>
+        tsconfig.json<br>
+        biome.json<br>
+        <span class="accent">AGENTS.md</span><br>
+        <span class="accent">CLAUDE.md</span><br>
+        <span class="accent">.cursor/rules/</span><br>
+        <span class="accent">.husky/pre-commit</span><br>
+        <span class="accent">CI pipeline</span><br>
+        <span class="accent">architecture.md</span>
+      </div>
+    </div>
+  </div>
+  <p>
+    Setting up AGENTS.md, lint configs, pre-commit hooks, CI, and architecture docs —
+    all manually aligned and consistent — is where most teams give up.
+    <strong class="accent">That gap is what this tool fills.</strong>
+  </p>
+</section>
+
+<!-- ── Slide 6: The Solution ─────────────────────── -->
+<section class="slide" data-slide="6">
+  <div class="eyebrow">The Solution</div>
+  <h2>One command. Five languages.<br><span class="accent">Harness-ready.</span></h2>
+  <div class="big-cmd">
+    <span class="prompt">$</span> npx <span class="pkg">@harness-ready/create-app</span> my-project
+  </div>
+  <p style="margin-top: 1.5rem;">
+    Interactive prompts configure your language, framework, coding agent,
+    team mode, and CI provider. The tool generates every file — aligned,
+    consistent, and production-ready.
+  </p>
+  <div class="stat-row">
+    <div class="stat">
+      <div class="num">5</div>
+      <div class="label">Languages</div>
+    </div>
+    <div class="stat">
+      <div class="num">20+</div>
+      <div class="label">Frameworks</div>
+    </div>
+    <div class="stat">
+      <div class="num">4</div>
+      <div class="label">AI agents supported</div>
+    </div>
+    <div class="stat">
+      <div class="num">0</div>
+      <div class="label">Dependencies</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Slide 7: What gets generated ──────────────── -->
+<section class="slide" data-slide="7">
+  <div class="eyebrow">Output</div>
+  <h2>What you get</h2>
+  <div class="filetree">
+<span class="dir">my-project/</span>
+├── <span class="harness-file">AGENTS.md</span>              <span class="comment"># Agent instructions — all tools read this</span>
+├── <span class="harness-file">CLAUDE.md</span>              <span class="comment"># Claude Code specific (if selected)</span>
+├── <span class="harness-file">.cursor/rules/project.mdc</span>  <span class="comment"># Cursor rules (if selected)</span>
+├── <span class="dir">[lint config]</span>          <span class="comment"># biome.json / ruff.toml / .golangci.yml / ...</span>
+├── <span class="dir">[project config]</span>       <span class="comment"># package.json / pyproject.toml / go.mod / ...</span>
+├── <span class="harness-file">.husky/pre-commit</span>      <span class="comment"># lint + type-check + test, automatically</span>
+├── <span class="harness-file">.github/workflows/ci.yml</span> <span class="comment"># CI pipeline (GitHub Actions or GitLab CI)</span>
+├── scripts/
+│   └── <span class="harness-file">setup-hooks.sh</span>     <span class="comment"># One-shot hook activation</span>
+├── docs/
+│   └── <span class="harness-file">architecture.md</span>    <span class="comment"># Module boundaries + ADR scaffold</span>
+├── src/                    <span class="comment"># Language-specific skeleton</span>
+└── tests/                  <span class="comment"># Smoke test — passing out of the box</span>
+  </div>
+  <p style="margin-top: 1.5rem; font-size: 1rem;">
+    <span class="accent">Amber files</span> are harness-engineering specific —
+    the layers that make AI coding agents effective.
+    Everything else is standard project scaffolding, correctly configured.
+  </p>
+</section>
+
+<!-- ── Slide 8: Supported stacks ─────────────────── -->
+<section class="slide" data-slide="8">
+  <div class="eyebrow">Coverage</div>
+  <h2>Supported stacks</h2>
+  <div class="stack-grid">
+    <div class="stack-card">
+      <div class="lang">TypeScript</div>
+      <div class="tools">
+        <span>Next.js · Express</span>
+        <span>Nest.js</span>
+        <span>Biome · Vitest</span>
+        <span>pnpm · npm · yarn</span>
+      </div>
+    </div>
+    <div class="stack-card">
+      <div class="lang">Python</div>
+      <div class="tools">
+        <span>FastAPI · Django</span>
+        <span>Flask</span>
+        <span>Ruff · Pyright</span>
+        <span>uv · Poetry · pip</span>
+      </div>
+    </div>
+    <div class="stack-card">
+      <div class="lang">Go</div>
+      <div class="tools">
+        <span>Standard · Gin</span>
+        <span>Fiber</span>
+        <span>golangci-lint</span>
+        <span>go test</span>
+      </div>
+    </div>
+    <div class="stack-card">
+      <div class="lang">Java</div>
+      <div class="tools">
+        <span>Spring Boot</span>
+        <span>Quarkus</span>
+        <span>Checkstyle · JUnit 5</span>
+        <span>Maven · Gradle</span>
+      </div>
+    </div>
+    <div class="stack-card">
+      <div class="lang">Rust</div>
+      <div class="tools">
+        <span>Standard · Actix</span>
+        <span>Axum</span>
+        <span>Clippy</span>
+        <span>cargo test</span>
+      </div>
+    </div>
+  </div>
+  <p style="text-align: center; margin-top: 1rem;">
+    Each stack gets the <strong>correct lint tool, test framework, package manager,</strong>
+    and <strong>coding conventions</strong> — no generic one-size-fits-all templates.
+  </p>
+</section>
+
+<!-- ── Slide 9: Get Started ──────────────────────── -->
+<section class="slide" data-slide="9">
+  <div class="eyebrow">Get Started</div>
+  <h2>Every project should be<br><span class="accent">harness-ready.</span></h2>
+  <div class="big-cmd" style="font-size: clamp(1.2rem, 2.5vw, 1.8rem);">
+    <span class="prompt">$</span> npx <span class="pkg">@harness-ready/create-app</span> my-project
+  </div>
+  <div class="cta-row">
+    <a class="cta" href="https://github.com/harness-ready/create-harness-app" target="_blank">
+      ← GitHub
+    </a>
+    <a class="cta" href="https://www.npmjs.com/package/@harness-ready/create-app" target="_blank">
+      npm
+    </a>
+    <a class="cta" href="https://github.com/harness-ready/create-harness-app/tree/main/docs" target="_blank">
+      Research reports →
+    </a>
+  </div>
+  <p style="margin-top: 2.5rem; color: var(--text-muted); font-size: 1rem;">
+    Zero dependencies · Node.js ≥ 18 · MIT License<br>
+    Research-backed · Built on findings from SWE-agent, Reflexion, and Martin Fowler's harness engineering framework
+  </p>
+</section>
+
+</div>
+
+<div class="progress" id="progress" style="width: 11%;"></div>
+<div class="counter"><span class="current" id="current">01</span> / 09</div>
+<div class="nav-hint">↑↓ or scroll to navigate</div>
+
+<script>
+const deck = document.getElementById('deck');
+const slides = document.querySelectorAll('.slide');
+const progress = document.getElementById('progress');
+const currentEl = document.getElementById('current');
+const total = slides.length;
+
+function updateProgress() {
+  const scrollTop = deck.scrollTop;
+  const scrollHeight = deck.scrollHeight - deck.clientHeight;
+  const pct = (scrollTop / scrollHeight) * 100;
+  progress.style.width = Math.max(pct, 100/total) + '%';
+
+  // Active slide
+  const idx = Math.round(scrollTop / deck.clientHeight);
+  const clamped = Math.min(idx, total - 1);
+  slides.forEach((s, i) => s.classList.toggle('active', i === clamped));
+  currentEl.textContent = String(clamped + 1).padStart(2, '0');
+}
+
+deck.addEventListener('scroll', updateProgress, { passive: true });
+
+// Keyboard navigation
+document.addEventListener('keydown', (e) => {
+  const idx = Math.round(deck.scrollTop / deck.clientHeight);
+  if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+    e.preventDefault();
+    if (idx < total - 1) slides[idx + 1].scrollIntoView({ behavior: 'smooth' });
+  } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft' || e.key === 'PageUp') {
+    e.preventDefault();
+    if (idx > 0) slides[idx - 1].scrollIntoView({ behavior: 'smooth' });
+  } else if (e.key === 'Home') {
+    e.preventDefault();
+    slides[0].scrollIntoView({ behavior: 'smooth' });
+  } else if (e.key === 'End') {
+    e.preventDefault();
+    slides[total - 1].scrollIntoView({ behavior: 'smooth' });
+  }
+});
+
+// Init
+updateProgress();
+slides[0].classList.add('active');
+</script>
+
+</body>
+</html>
