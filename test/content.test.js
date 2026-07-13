@@ -187,3 +187,34 @@ test('unknown locale falls back to English', () => {
   assert.ok(md.includes(EN_STYLE), 'unknown locale should fall back to en');
   assert.ok(!md.includes(ZH_STYLE));
 });
+
+// ── Copilot config + agent "multiple" (issue #4) ───────────────────────────
+// Codex has no dedicated file (it reads AGENTS.md); Copilot gets
+// .github/copilot-instructions.md. "Multiple" emits Claude + Cursor + Copilot.
+
+test('copilot-instructions.md emitted for copilot and multiple, not others', () => {
+  assert.ok(hasFile(baseAnswers({ codingAgent: 'copilot' }), '.github/copilot-instructions.md'));
+  assert.ok(hasFile(baseAnswers({ codingAgent: 'multiple' }), '.github/copilot-instructions.md'));
+  for (const agent of ['claude-code', 'cursor', 'codex']) {
+    assert.ok(
+      !hasFile(baseAnswers({ codingAgent: agent }), '.github/copilot-instructions.md'),
+      `copilot file should be absent for agent=${agent}`
+    );
+  }
+});
+
+test('agent=multiple emits Claude + Cursor + Copilot together', () => {
+  const a = baseAnswers({ codingAgent: 'multiple' });
+  assert.ok(hasFile(a, 'CLAUDE.md'));
+  assert.ok(hasFile(a, '.cursor/rules/project.mdc'));
+  assert.ok(hasFile(a, '.github/copilot-instructions.md'));
+});
+
+test('copilot-instructions.md carries the project name and tech stack', () => {
+  const md = file(
+    baseAnswers({ codingAgent: 'copilot', projectName: 'my-app', language: 'typescript' }),
+    '.github/copilot-instructions.md'
+  );
+  assert.ok(md.includes('my-app'));
+  assert.ok(md.includes('TypeScript'));
+});
