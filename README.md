@@ -73,6 +73,10 @@ The `docs/` directory contains the research and analysis behind this tool:
 | [research-report-zh.md](./docs/research-report-zh.md) | 中文版研究报告 |
 | [practitioner-guide-zh.md](./docs/practitioner-guide-zh.md) | 面向开发者的实践指南：基于 Fowler 的 guide/sensor 框架，覆盖 AGENTS.md 配置、lint/hooks/CI 设置、项目评估清单 |
 
+## Roadmap
+
+See [ROADMAP.md](./ROADMAP.md) for the project direction, tracked in [GitHub Issues](https://github.com/harness-ready/create-harness-app/issues) under the P0–P3 milestones. The next focus is the generator test suite ([#1](https://github.com/harness-ready/create-harness-app/issues/1)), which unblocks the CI fix.
+
 ## Why?
 
 Research shows that the "harness" around an LLM — the tools, context, and feedback loops — matters as much as the model itself. Martin Fowler calls this **harness engineering for coding agent users**: the practice of building feed-forward guides (AGENTS.md, architecture docs) and feedback sensors (lint, hooks, CI) that make AI coding agents reliable.
