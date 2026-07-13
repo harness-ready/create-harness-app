@@ -144,3 +144,46 @@ test('python: pyproject.toml appears exactly once (generateAll dedup)', () => {
   const count = arts.filter((a) => a.filepath === 'pyproject.toml').length;
   assert.equal(count, 1);
 });
+
+// ── Locale (issue #3): en default, zh opt-in ───────────────────────────────
+// AGENTS.md and cursor rules embed the full convention set (style+imports+
+// testing); CLAUDE.md embeds testing only. Markers below come from the
+// typescript convention set in lib/config.js.
+
+const EN_STYLE = 'Use TypeScript strict mode';
+const ZH_STYLE = '使用 TypeScript 严格模式';
+const ZH_TESTING = '使用 describe/it 组织测试';
+
+test('default locale (en) emits English conventions in AGENTS.md', () => {
+  const md = file(baseAnswers({ language: 'typescript' }), 'AGENTS.md');
+  assert.ok(md.includes(EN_STYLE), 'expected English style marker');
+  assert.ok(!md.includes(ZH_STYLE), 'did not expect Chinese marker in en locale');
+});
+
+test('--locale zh emits Chinese conventions in AGENTS.md', () => {
+  const md = file(baseAnswers({ language: 'typescript', locale: 'zh' }), 'AGENTS.md');
+  assert.ok(md.includes(ZH_STYLE), 'expected Chinese style marker');
+  assert.ok(!md.includes(EN_STYLE), 'did not expect English marker in zh locale');
+});
+
+test('--locale zh flows through to cursor rules (full convention set)', () => {
+  const md = file(
+    baseAnswers({ language: 'typescript', locale: 'zh', codingAgent: 'multiple' }),
+    '.cursor/rules/project.mdc'
+  );
+  assert.ok(md.includes(ZH_STYLE), 'cursor rules should carry the zh style marker');
+});
+
+test('--locale zh flows through to CLAUDE.md (testing conventions)', () => {
+  const md = file(
+    baseAnswers({ language: 'typescript', locale: 'zh', codingAgent: 'claude-code' }),
+    'CLAUDE.md'
+  );
+  assert.ok(md.includes(ZH_TESTING), 'CLAUDE.md should carry the zh testing marker');
+});
+
+test('unknown locale falls back to English', () => {
+  const md = file(baseAnswers({ language: 'typescript', locale: 'xx' }), 'AGENTS.md');
+  assert.ok(md.includes(EN_STYLE), 'unknown locale should fall back to en');
+  assert.ok(!md.includes(ZH_STYLE));
+});

@@ -18,6 +18,7 @@ export function baseAnswers(overrides = {}) {
     codingAgent: 'claude-code',
     teamMode: 'solo',
     ciProvider: 'github',
+    locale: 'en',
     ...overrides,
   };
 }
