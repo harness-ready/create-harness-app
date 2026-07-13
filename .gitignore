@@ -1,0 +1,9 @@
+node_modules/
+test-output/
+test-python/
+test-go/
+test-rust/
+test-java/
+*.log
+.DS_Store
+.env

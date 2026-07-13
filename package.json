@@ -1,0 +1,31 @@
+{
+  "name": "create-harness-app",
+  "version": "1.0.0",
+  "description": "Generate a harness-engineering-ready project for AI coding agents (Claude Code, Cursor, Codex, Copilot)",
+  "type": "module",
+  "bin": {
+    "create-harness-app": "./bin/cli.js"
+  },
+  "exports": {
+    ".": "./lib/cli.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "harness-engineering",
+    "ai-coding-agent",
+    "claude-code",
+    "cursor",
+    "codex",
+    "copilot",
+    "agents-md",
+    "project-scaffold",
+    "claude-md"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/user/create-harness-app"
+  }
+}
