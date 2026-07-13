@@ -63,6 +63,16 @@ my-project/
 | **Java** | Spring Boot, Quarkus, None | Checkstyle | JUnit 5 | Maven, Gradle |
 | **Rust** | Standard, Actix-web, Axum, None | Clippy | cargo test | Cargo |
 
+## Documentation
+
+The `docs/` directory contains the research and analysis behind this tool:
+
+| Document | Description |
+|----------|-------------|
+| [research-report.md](./docs/research-report.md) | Deep research report on harness engineering: definitions, empirical evidence (SWE-agent, Reflexion, context management), landscape of harnesses and eval benchmarks, open problems |
+| [research-report-zh.md](./docs/research-report-zh.md) | 中文版研究报告 |
+| [practitioner-guide-zh.md](./docs/practitioner-guide-zh.md) | 面向开发者的实践指南：基于 Fowler 的 guide/sensor 框架，覆盖 AGENTS.md 配置、lint/hooks/CI 设置、项目评估清单 |
+
 ## Why?
 
 Research shows that the "harness" around an LLM — the tools, context, and feedback loops — matters as much as the model itself. Martin Fowler calls this **harness engineering for coding agent users**: the practice of building feed-forward guides (AGENTS.md, architecture docs) and feedback sensors (lint, hooks, CI) that make AI coding agents reliable.
