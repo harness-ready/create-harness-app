@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Harness Engineering — @harness-ready/create-app</title>
+<meta name="description" content="Generate a harness-engineering-ready project for AI coding agents. One command. Five languages. Harness-ready.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0D1117;
+  --bg-panel: #161B22;
+  --bg-elevated: #21262D;
+  --border: #30363D;
+  --amber: #F0A030;
+  --amber-dim: #B87817;
+  --text: #E6EDF3;
+  --text-dim: #8B949E;
+  --text-muted: #6E7681;
+  --teal: #39C5CF;
+  --display: 'Space Grotesk', sans-serif;
+  --body: 'IBM Plex Sans', sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--body);
+  line-height: 1.6;
+}
+
+.section {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 5rem 2rem;
+}
+
+.hero { padding-top: 8rem; text-align: center; }
+
+h1 {
+  font-family: var(--display);
+  font-size: clamp(2.8rem, 7vw, 5rem);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  margin-bottom: 1.5rem;
+}
+
+h2 {
+  font-family: var(--display);
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  margin-bottom: 1.5rem;
+}
+
+h3 {
+  font-family: var(--display);
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+p {
+  font-size: 1.1rem;
+  color: var(--text-dim);
+  margin-bottom: 1rem;
+}
+p strong { color: var(--text); }
+
+.accent { color: var(--amber); }
+.mono { font-family: var(--mono); }
+
+/* ── Hero ──────────────────────────────────────── */
+.hero .equation {
+  font-family: var(--display);
+  font-size: clamp(1.3rem, 2.8vw, 2.2rem);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6em;
+  margin: 2rem 0 3rem;
+}
+.hero .equation .op { color: var(--text-muted); font-weight: 400; }
+.hero .equation .model { color: var(--text-dim); }
+.hero .equation .harness { color: var(--amber); position: relative; }
+.hero .equation .harness::after { content: ''; position: absolute; bottom: -4px; left: 0; right: 0; height: 2px; background: var(--amber); opacity: 0.4; }
+.hero .equation .result { color: var(--text); font-weight: 600; }
+
+.hero .cmd {
+  font-family: var(--mono);
+  font-size: clamp(1rem, 2vw, 1.3rem);
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.25rem 2rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  position: relative;
+  overflow: hidden;
+}
+.hero .cmd::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--amber), transparent); }
+.hero .cmd .prompt { color: var(--amber); font-weight: 500; }
+.hero .cmd .cursor { display: inline-block; width: 8px; height: 1.1em; background: var(--amber); animation: blink 1.2s steps(2) infinite; vertical-align: text-bottom; margin-left: 2px; }
+@keyframes blink { 50% { opacity: 0; } }
+
+.hero .links { display: flex; justify-content: center; gap: 1.5rem; margin: 2rem 0; flex-wrap: wrap; }
+.hero .links a {
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  text-decoration: none;
+  padding: 0.6rem 1.4rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  transition: all 0.25s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.hero .links a:hover { border-color: var(--amber); color: var(--amber); }
+
+/* ── Stats ─────────────────────────────────────── */
+.stats { display: flex; gap: 3rem; justify-content: center; flex-wrap: wrap; margin: 3rem 0; }
+.stat { text-align: center; }
+.stat .num { font-family: var(--display); font-size: 2.5rem; font-weight: 700; color: var(--amber); line-height: 1; }
+.stat .label { font-family: var(--body); font-size: 0.85rem; color: var(--text-muted); margin-top: 0.4rem; }
+
+/* ── Cards ──────────────────────────────────────── */
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
+.card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 2rem;
+  transition: all 0.3s ease;
+}
+.card:hover { border-color: var(--amber-dim); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+.card h3 { font-family: var(--display); font-size: 1.15rem; color: var(--text); margin-bottom: 0.75rem; }
+.card p { font-size: 0.95rem; color: var(--text-dim); margin-bottom: 0; }
+
+/* ── Two-col ────────────────────────────────────── */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; }
+.two-col > div { padding: 2rem 0; }
+
+/* ── File tree ──────────────────────────────────── */
+.filetree {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  line-height: 1.8;
+  color: var(--text-dim);
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.5rem;
+}
+.filetree .dir { color: var(--text); font-weight: 500; }
+.filetree .hl { color: var(--amber); }
+.filetree .cm { color: var(--text-muted); font-size: 0.78rem; }
+
+/* ── Stack grid ─────────────────────────────────── */
+.stack-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; margin: 2rem 0; }
+.stack-card {
+  background: var(--bg-panel); border: 1px solid var(--border); border-radius: 10px;
+  padding: 1.5rem 1rem; text-align: center; transition: all 0.3s;
+}
+.stack-card:hover { border-color: var(--amber-dim); transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
+.stack-card .lang { font-family: var(--display); font-size: 1.05rem; font-weight: 600; color: var(--text); margin-bottom: 0.5rem; }
+.stack-card .tools { font-family: var(--mono); font-size: 0.73rem; color: var(--text-muted); line-height: 1.7; }
+.stack-card .tools span { display: block; }
+
+/* ── Quote ──────────────────────────────────────── */
+blockquote {
+  border-left: 3px solid var(--amber);
+  padding: 1rem 1.5rem;
+  margin: 2rem 0;
+  background: var(--bg-panel);
+  border-radius: 0 8px 8px 0;
+}
+blockquote p { font-size: 1.1rem; color: var(--text-dim); font-style: italic; }
+blockquote cite { display: block; font-family: var(--body); font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; font-style: normal; }
+
+/* ── Footer ─────────────────────────────────────── */
+.footer { text-align: center; padding: 4rem 2rem; border-top: 1px solid var(--border); }
+.footer p { font-size: 0.85rem; color: var(--text-muted); }
+
+/* ── Responsive ─────────────────────────────────── */
+@media (max-width: 700px) {
+  .hero { padding-top: 5rem; }
+  .two-col { grid-template-columns: 1fr; }
+  .stack-grid { grid-template-columns: repeat(2, 1fr); }
+  .section { padding: 3rem 1.5rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── Hero ────────────────────────────────────── -->
+<section class="section hero">
+  <h1>Every project should be<br><span class="accent">harness-ready.</span></h1>
+  <p style="font-size: 1.2rem; max-width: 580px; margin: 0 auto 1.5rem;">
+    A scaffolding tool that generates a harness-engineering-ready project — AGENTS.md, lint config,
+    pre-commit hooks, CI pipeline, architecture docs — in one command.
+  </p>
+  <div class="equation">
+    <span class="model">Model</span><span class="op">+</span><span class="harness">Harness</span><span class="op">=</span><span class="result">Agent</span>
+  </div>
+  <div class="cmd">
+    <span class="prompt">$</span><span>npx @harness-ready/create-app my-project</span><span class="cursor"></span>
+  </div>
+  <div class="links">
+    <a href="https://github.com/harness-ready/create-harness-app" target="_blank">← GitHub</a>
+    <a href="https://www.npmjs.com/package/@harness-ready/create-app" target="_blank">npm</a>
+    <a href="./presentation.html">Presentation →</a>
+    <a href="./presentation-zh.html">中文演示 →</a>
+  </div>
+</section>
+
+<!-- ── Stats ────────────────────────────────────── -->
+<section class="section" style="padding-top: 0;">
+  <div class="stats">
+    <div class="stat"><div class="num">5</div><div class="label">Languages</div></div>
+    <div class="stat"><div class="num">20+</div><div class="label">Frameworks</div></div>
+    <div class="stat"><div class="num">4</div><div class="label">AI agents supported</div></div>
+    <div class="stat"><div class="num">0</div><div class="label">Dependencies</div></div>
+  </div>
+</section>
+
+<!-- ── Why ──────────────────────────────────────── -->
+<section class="section">
+  <h2>Why harness engineering?</h2>
+  <div class="two-col">
+    <div>
+      <p>
+        Research shows that the <strong>wrapper around an LLM matters as much as the model itself</strong>.
+        When Princeton researchers redesigned the agent-computer interface using the <em>same</em> GPT-4 model,
+        performance on SWE-bench roughly <strong class="accent">tripled</strong> — from 3.8% to 12.5%.
+      </p>
+      <p>
+        The model didn't change. The <strong class="accent">harness</strong> did.
+      </p>
+    </div>
+    <div>
+      <blockquote>
+        <p>"The harness is what makes the agent run."</p>
+        <cite>— Hugging Face, "Harness, Scaffold, and the AI Agent Terms Worth Getting Right"</cite>
+      </blockquote>
+    </div>
+  </div>
+</section>
+
+<!-- ── What ─────────────────────────────────────── -->
+<section class="section">
+  <h2>What the tool generates</h2>
+  <div class="two-col">
+    <div class="filetree">
+<span class="dir">my-project/</span>
+├── <span class="hl">AGENTS.md</span>              <span class="cm"># All AI tools read this</span>
+├── <span class="hl">CLAUDE.md</span>              <span class="cm"># Claude Code specific</span>
+├── <span class="hl">.cursor/rules/</span>         <span class="cm"># Cursor rules</span>
+├── <span class="dir">[lint config]</span>          <span class="cm"># biome.json / ruff.toml / ...</span>
+├── <span class="dir">[project config]</span>       <span class="cm"># package.json / pyproject.toml / ...</span>
+├── <span class="hl">.husky/pre-commit</span>      <span class="cm"># Automatically checks on commit</span>
+├── <span class="hl">.github/workflows/ci.yml</span> <span class="cm"># CI pipeline</span>
+├── <span class="hl">scripts/setup-hooks.sh</span>  <span class="cm"># One-shot hook setup</span>
+├── docs/
+│   └── <span class="hl">architecture.md</span>    <span class="cm"># Module boundaries + ADRs</span>
+├── src/
+└── tests/                  <span class="cm"># Smoke test, passing out of box</span>
+    </div>
+    <div>
+      <p>
+        <span class="accent">Amber-highlighted files</span> are harness-engineering specific —
+        the feed-forward guides and feedback sensors that make AI coding agents
+        reliable, not just fast.
+      </p>
+      <p>
+        Based on <strong>Martin Fowler's harness engineering framework</strong>:
+        guides tell the agent what to do <em>before</em> it acts; sensors catch problems
+        <em>after</em> it acts and let it self-correct. You need both.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ── How ──────────────────────────────────────── -->
+<section class="section">
+  <h2>How it works</h2>
+  <div class="card-grid">
+    <div class="card">
+      <h3>1. Run one command</h3>
+      <p><span class="mono accent">npx @harness-ready/create-app</span> in your terminal.</p>
+    </div>
+    <div class="card">
+      <h3>2. Answer a few questions</h3>
+      <p>Choose your language, framework, AI coding agent, team mode, and CI provider.</p>
+    </div>
+    <div class="card">
+      <h3>3. Get a harness-ready project</h3>
+      <p>Install dependencies, activate hooks, and start building — your AI agent already knows the project.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── Supported stacks ─────────────────────────── -->
+<section class="section">
+  <h2>Supported stacks</h2>
+  <div class="stack-grid">
+    <div class="stack-card">
+      <div class="lang">TypeScript</div>
+      <div class="tools"><span>Next.js · Express</span><span>Nest.js</span><span>Biome · Vitest</span><span>pnpm · npm · yarn</span></div>
+    </div>
+    <div class="stack-card">
+      <div class="lang">Python</div>
+      <div class="tools"><span>FastAPI · Django</span><span>Flask</span><span>Ruff · Pyright</span><span>uv · Poetry · pip</span></div>
+    </div>
+    <div class="stack-card">
+      <div class="lang">Go</div>
+      <div class="tools"><span>Standard · Gin</span><span>Fiber</span><span>golangci-lint</span><span>go test</span></div>
+    </div>
+    <div class="stack-card">
+      <div class="lang">Java</div>
+      <div class="tools"><span>Spring Boot</span><span>Quarkus</span><span>Checkstyle · JUnit 5</span><span>Maven · Gradle</span></div>
+    </div>
+    <div class="stack-card">
+      <div class="lang">Rust</div>
+      <div class="tools"><span>Standard · Actix</span><span>Axum</span><span>Clippy</span><span>cargo test</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Docs ─────────────────────────────────────── -->
+<section class="section">
+  <h2>Learn more</h2>
+  <div class="card-grid">
+    <a href="./research-report.md" style="text-decoration: none; color: inherit;">
+      <div class="card"><h3>Research report →</h3><p>Deep dive on harness engineering: definitions, empirical evidence, landscape of frameworks, open problems.</p></div>
+    </a>
+    <a href="./research-report-zh.md" style="text-decoration: none; color: inherit;">
+      <div class="card"><h3>研究报告 →</h3><p>中文版深度研究报告：定义、实证依据、框架全景、开放问题。</p></div>
+    </a>
+    <a href="./practitioner-guide-zh.md" style="text-decoration: none; color: inherit;">
+      <div class="card"><h3>实践指南 →</h3><p>面向开发者的操作手册：Fowler 的 guide/sensor 框架、AGENTS.md 配置、hooks 设置、项目评估清单。</p></div>
+    </a>
+    <a href="./presentation.html" style="text-decoration: none; color: inherit;">
+      <div class="card"><h3>Presentation →</h3><p>9-slide deck for pitching harness engineering and the create-harness-app tool.</p></div>
+    </a>
+  </div>
+</section>
+
+<footer class="footer">
+  <p>@harness-ready/create-app · MIT License · <a href="https://github.com/harness-ready/create-harness-app" target="_blank" style="color: var(--text-dim);">GitHub</a></p>
+</footer>
+
+</body>
+</html>
