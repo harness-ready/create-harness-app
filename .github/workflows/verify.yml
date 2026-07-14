@@ -1,0 +1,102 @@
+# Self-verification (issue #5): for each stack, generate a project with the
+# scaffolder, install its real dependencies, and run its own gate
+# (lint -> type-check -> test). Proves generated configs never drift from
+# reality. Heavy (real installs), so path-filtered to generation-relevant
+# changes. The lightweight unit suite runs in ci.yml on every PR.
+
+name: verify
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'lib/templates.js'
+      - 'lib/config.js'
+      - 'scripts/verify-stack.mjs'
+      - '.github/workflows/verify.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'lib/templates.js'
+      - 'lib/config.js'
+      - 'scripts/verify-stack.mjs'
+      - '.github/workflows/verify.yml'
+  workflow_dispatch: {}
+
+concurrency:
+  group: verify-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ts-express:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: node scripts/verify-stack.mjs ts-express
+
+  py-fastapi:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - uses: astral-sh/setup-uv@v5
+      - run: node scripts/verify-stack.mjs py-fastapi
+
+  go-standard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - uses: actions/setup-go@v5
+        with: { go-version: '1.22' }
+      # Install golangci-lint to GOPATH/bin (setup-go puts it on PATH); the
+      # gate then runs it inside the generated project via verify-stack.
+      - name: Install golangci-lint
+        run: curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b "$(go env GOPATH)/bin" v1.61.0
+      - run: node scripts/verify-stack.mjs go-standard
+
+  java-spring-boot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - run: node scripts/verify-stack.mjs java-spring-boot
+
+  java-quarkus:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      # Install Gradle directly. setup-gradle's injection scripts conflict
+      # with the checkstyle plugin's tool resolution ("detachedConfiguration").
+      - name: Install Gradle
+        run: |
+          curl -sSfL https://services.gradle.org/distributions/gradle-8.10.2-bin.zip -o /tmp/gradle.zip
+          unzip -q /tmp/gradle.zip -d "$HOME"
+          echo "$HOME/gradle-8.10.2/bin" >> "$GITHUB_PATH"
+      - run: node scripts/verify-stack.mjs java-quarkus
+
+  rust-standard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - uses: dtolnay/rust-toolchain@stable
+      - run: node scripts/verify-stack.mjs rust-standard

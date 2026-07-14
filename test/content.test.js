@@ -218,3 +218,39 @@ test('copilot-instructions.md carries the project name and tech stack', () => {
   assert.ok(md.includes('my-app'));
   assert.ok(md.includes('TypeScript'));
 });
+
+// ── Source skeleton + tsconfig (issue #5) ──────────────────────────────────
+
+test('tsconfig.json (typescript) is strict with src+tests include', () => {
+  const ts = JSON.parse(file(baseAnswers({ language: 'typescript' }), 'tsconfig.json'));
+  assert.equal(ts.compilerOptions.strict, true);
+  assert.ok(ts.include.includes('tests/**/*.ts'));
+  assert.ok(ts.include.includes('src/**/*.ts'));
+});
+
+test('src/index.ts emitted for express/none, not nextjs/nest', () => {
+  assert.ok(hasFile(baseAnswers({ language: 'typescript', framework: 'express' }), 'src/index.ts'));
+  assert.ok(hasFile(baseAnswers({ language: 'typescript', framework: 'none' }), 'src/index.ts'));
+  assert.ok(!hasFile(baseAnswers({ language: 'typescript', framework: 'nextjs' }), 'src/index.ts'));
+  assert.ok(!hasFile(baseAnswers({ language: 'typescript', framework: 'nest' }), 'src/index.ts'));
+});
+
+test('python src package __init__.py uses the snake_case project name', () => {
+  assert.ok(
+    hasFile(baseAnswers({ language: 'python', projectName: 'my-cool-app' }), 'src/my_cool_app/__init__.py')
+  );
+});
+
+test('go internal/app.go and rust src/main.rs present', () => {
+  assert.ok(hasFile(baseAnswers({ language: 'go' }), 'internal/app.go'));
+  assert.ok(hasFile(baseAnswers({ language: 'rust' }), 'src/main.rs'));
+});
+
+test('java App.java present and gradle applies the checkstyle plugin', () => {
+  assert.ok(
+    hasFile(baseAnswers({ language: 'java', framework: 'spring-boot' }), 'src/main/java/com/example/App.java')
+  );
+  const gradle = file(baseAnswers({ language: 'java', framework: 'quarkus' }), 'build.gradle.kts');
+  assert.ok(gradle.includes('id("checkstyle")'), 'gradle should apply the checkstyle plugin');
+  assert.ok(gradle.includes('checkstyle.xml'));
+});
