@@ -54,7 +54,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 20 }
       - uses: actions/setup-go@v5
-        with: { go-version: '1.24' }
+        with: { go-version: '1.22' }
       # Install golangci-lint to GOPATH/bin (setup-go puts it on PATH); the
       # gate then runs it inside the generated project via verify-stack.
       - name: Install golangci-lint
