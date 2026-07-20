@@ -22,6 +22,11 @@ npx @harness-ready/create-app my-project --yes
 # Add harness config to an EXISTING project (detects the stack, leaves your
 # source/manifests/README untouched)
 npx @harness-ready/create-app init
+
+# Reproducible: drive all answers from a JSON config (--yes = non-interactive).
+# Auto-discovered if .harnessrc.json exists in cwd. Supports an
+# `extraConventions` list that is appended to AGENTS.md.
+npx @harness-ready/create-app my-app --config .harnessrc.json --yes
 ```
 
 You'll be asked:
