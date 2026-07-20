@@ -274,3 +274,39 @@ test('AGENTS.md has no Team Conventions section when extraConventions is absent'
   const md = file(baseAnswers({ language: 'typescript' }), 'AGENTS.md');
   assert.ok(!md.includes('Team Conventions'));
 });
+
+// ── Optional sensors (issue #8) ─────────────────────────────────────────────
+
+test('sensors: selecting all four emits their files; selecting none omits them', () => {
+  const none = generateAll(baseAnswers({ language: 'typescript' })).map((a) => a.filepath);
+  assert.ok(!none.includes('.github/dependabot.yml'));
+  assert.ok(!none.includes('Dockerfile'));
+
+  const all = generateAll(
+    baseAnswers({ language: 'typescript', sensors: ['dependabot', 'gitleaks', 'commitlint', 'docker'] })
+  ).map((a) => a.filepath);
+  assert.ok(all.includes('.github/dependabot.yml'));
+  assert.ok(all.includes('.gitleaks.toml'));
+  assert.ok(all.includes('commitlint.config.cjs'));
+  assert.ok(all.includes('Dockerfile'));
+});
+
+test('dependabot ecosystem follows the language + includes github-actions', () => {
+  const py = file(baseAnswers({ language: 'python', sensors: ['dependabot'] }), '.github/dependabot.yml');
+  assert.ok(py.includes('package-ecosystem: "pip"'));
+  const go = file(baseAnswers({ language: 'go', sensors: ['dependabot'] }), '.github/dependabot.yml');
+  assert.ok(go.includes('package-ecosystem: "gomod"'));
+  assert.ok(go.includes('package-ecosystem: "github-actions"'));
+});
+
+test('dockerfile is emitted with a per-stack base image', () => {
+  const ts = file(baseAnswers({ language: 'typescript', framework: 'express', sensors: ['docker'] }), 'Dockerfile');
+  assert.ok(ts.includes('node:20'));
+  const rs = file(baseAnswers({ language: 'rust', sensors: ['docker'] }), 'Dockerfile');
+  assert.ok(rs.includes('cargo build --release'));
+});
+
+test('commitlint config targets conventional commits', () => {
+  const c = file(baseAnswers({ language: 'typescript', sensors: ['commitlint'] }), 'commitlint.config.cjs');
+  assert.ok(c.includes('@commitlint/config-conventional'));
+});

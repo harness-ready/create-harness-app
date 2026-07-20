@@ -135,5 +135,13 @@ export function expectedFiles(answers) {
   if (ciProvider === 'github') files.add('.github/workflows/ci.yml');
   else if (ciProvider === 'gitlab') files.add('.gitlab-ci.yml');
 
+  // Optional extra sensors (issue #8) — only when selected.
+  if (Array.isArray(answers.sensors)) {
+    if (answers.sensors.includes('dependabot')) files.add('.github/dependabot.yml');
+    if (answers.sensors.includes('gitleaks')) files.add('.gitleaks.toml');
+    if (answers.sensors.includes('commitlint')) files.add('commitlint.config.cjs');
+    if (answers.sensors.includes('docker')) files.add('Dockerfile');
+  }
+
   return [...files].sort();
 }
