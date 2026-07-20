@@ -4,7 +4,7 @@
   "description": "Generate a harness-engineering-ready project for AI coding agents (Claude Code, Cursor, Codex, Copilot)",
   "type": "module",
   "scripts": {
-    "test": "node --test test/generate-all.test.js test/content.test.js test/detect.test.js test/init.test.js"
+    "test": "node --test test/generate-all.test.js test/content.test.js test/detect.test.js test/init.test.js test/config-loader.test.js"
   },
   "bin": {
     "create-harness-app": "./bin/cli.js"

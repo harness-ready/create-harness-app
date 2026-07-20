@@ -254,3 +254,23 @@ test('java App.java present and gradle applies the checkstyle plugin', () => {
   assert.ok(gradle.includes('id("checkstyle")'), 'gradle should apply the checkstyle plugin');
   assert.ok(gradle.includes('checkstyle.xml'));
 });
+
+// ── extraConventions hook (issue #7) ───────────────────────────────────────
+
+test('AGENTS.md renders a Team Conventions section from extraConventions', () => {
+  const md = file(
+    baseAnswers({
+      language: 'typescript',
+      extraConventions: ['Use dayjs, not moment', 'Version all APIs (/v1/)'],
+    }),
+    'AGENTS.md'
+  );
+  assert.ok(md.includes('### Team Conventions'));
+  assert.ok(md.includes('Use dayjs, not moment'));
+  assert.ok(md.includes('Version all APIs (/v1/)'));
+});
+
+test('AGENTS.md has no Team Conventions section when extraConventions is absent', () => {
+  const md = file(baseAnswers({ language: 'typescript' }), 'AGENTS.md');
+  assert.ok(!md.includes('Team Conventions'));
+});
