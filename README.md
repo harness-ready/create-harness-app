@@ -30,6 +30,9 @@ npx @harness-ready/create-app my-app --config .harnessrc.json --yes
 
 # Optional extra sensors: dependabot, gitleaks, commitlint, docker
 npx @harness-ready/create-app my-app --yes --sensors dependabot,docker
+
+# Starter MCP server config (.mcp.json / .cursor/mcp.json) for the chosen agent
+npx @harness-ready/create-app my-app --yes --mcp
 ```
 
 You'll be asked:

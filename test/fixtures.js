@@ -131,6 +131,10 @@ export function expectedFiles(answers) {
   if (codingAgent === 'copilot' || codingAgent === 'multiple') {
     files.add('.github/copilot-instructions.md');
   }
+  if (answers.mcp) {
+    if (codingAgent === 'claude-code' || codingAgent === 'multiple') files.add('.mcp.json');
+    if (codingAgent === 'cursor' || codingAgent === 'multiple') files.add('.cursor/mcp.json');
+  }
 
   if (ciProvider === 'github') files.add('.github/workflows/ci.yml');
   else if (ciProvider === 'gitlab') files.add('.gitlab-ci.yml');

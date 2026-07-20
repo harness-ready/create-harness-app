@@ -310,3 +310,30 @@ test('commitlint config targets conventional commits', () => {
   const c = file(baseAnswers({ language: 'typescript', sensors: ['commitlint'] }), 'commitlint.config.cjs');
   assert.ok(c.includes('@commitlint/config-conventional'));
 });
+
+// ── MCP config (issue #9) ───────────────────────────────────────────────────
+
+test('mcp: .mcp.json emitted for claude-code/multiple, not cursor/codex/copilot', () => {
+  assert.ok(hasFile(baseAnswers({ codingAgent: 'claude-code', mcp: true }), '.mcp.json'));
+  assert.ok(hasFile(baseAnswers({ codingAgent: 'multiple', mcp: true }), '.mcp.json'));
+  for (const agent of ['cursor', 'codex', 'copilot']) {
+    assert.ok(!hasFile(baseAnswers({ codingAgent: agent, mcp: true }), '.mcp.json'), `no .mcp.json for ${agent}`);
+  }
+});
+
+test('mcp: .cursor/mcp.json emitted only for cursor/multiple', () => {
+  assert.ok(hasFile(baseAnswers({ codingAgent: 'cursor', mcp: true }), '.cursor/mcp.json'));
+  assert.ok(hasFile(baseAnswers({ codingAgent: 'multiple', mcp: true }), '.cursor/mcp.json'));
+  assert.ok(!hasFile(baseAnswers({ codingAgent: 'claude-code', mcp: true }), '.cursor/mcp.json'));
+});
+
+test('mcp: no MCP files when mcp is not set', () => {
+  assert.ok(!hasFile(baseAnswers({ codingAgent: 'multiple' }), '.mcp.json'));
+  assert.ok(!hasFile(baseAnswers({ codingAgent: 'multiple' }), '.cursor/mcp.json'));
+});
+
+test('mcp config declares a starter filesystem server', () => {
+  const m = JSON.parse(file(baseAnswers({ codingAgent: 'claude-code', mcp: true }), '.mcp.json'));
+  assert.ok(m.mcpServers && m.mcpServers.filesystem);
+  assert.ok(m.mcpServers.filesystem.args.includes('.'));
+});
