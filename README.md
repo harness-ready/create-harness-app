@@ -18,6 +18,10 @@ npx @harness-ready/create-app my-project
 
 # Skip prompts (uses TypeScript + Express defaults)
 npx @harness-ready/create-app my-project --yes
+
+# Add harness config to an EXISTING project (detects the stack, leaves your
+# source/manifests/README untouched)
+npx @harness-ready/create-app init
 ```
 
 You'll be asked:
