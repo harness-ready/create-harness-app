@@ -27,6 +27,9 @@ npx @harness-ready/create-app init
 # Auto-discovered if .harnessrc.json exists in cwd. Supports an
 # `extraConventions` list that is appended to AGENTS.md.
 npx @harness-ready/create-app my-app --config .harnessrc.json --yes
+
+# Optional extra sensors: dependabot, gitleaks, commitlint, docker
+npx @harness-ready/create-app my-app --yes --sensors dependabot,docker
 ```
 
 You'll be asked:
